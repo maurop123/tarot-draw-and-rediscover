@@ -127,7 +127,7 @@ const TarotCard: React.FC<TarotCardProps> = ({
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
     >
-      <div className="text-xs font-semibold text-tarot-gold">{card.name || "TAROT"}</div>
+      <div className="text-xs font-semibold text-white">{card.name || "TAROT"}</div>
       <div className="flex-1 flex items-center justify-center w-full">
         <svg
           className="w-full h-full text-white"
