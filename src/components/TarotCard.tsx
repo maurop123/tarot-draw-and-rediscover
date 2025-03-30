@@ -127,7 +127,7 @@ const TarotCard: React.FC<TarotCardProps> = ({
       onMouseDown={handleMouseDown}
       onTouchStart={handleTouchStart}
     >
-      <div className="text-xs font-semibold text-tarot-gold">{card.suit || "Major Arcana"}</div>
+      <div className="text-xs font-semibold text-tarot-gold">{card.name || "TAROT"}</div>
       <div className="flex-1 flex items-center justify-center w-full">
         <svg
           className="w-full h-full text-white"
@@ -141,7 +141,6 @@ const TarotCard: React.FC<TarotCardProps> = ({
           <polygon points="50,70 65,100 50,130 35,100" fill="none" stroke="#33C3F0" strokeWidth="1" />
         </svg>
       </div>
-      <div className="text-sm font-bold">{card.name}</div>
     </div>
   );
 };
