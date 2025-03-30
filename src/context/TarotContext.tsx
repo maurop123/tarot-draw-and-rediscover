@@ -39,15 +39,18 @@ interface TarotContextState {
 // Create the context
 const TarotContext = createContext<TarotContextState | undefined>(undefined);
 
+// Helper function to create a new reading
+const createNewReading = () => ({
+  id: crypto.randomUUID(),
+  title: `Reading - ${format(new Date(), 'MMM d, yyyy h:mm a')}`,
+  timestamp: new Date().toISOString(),
+  cards: []
+});
+
 // Provider component
 export const TarotProvider = ({ children }: { children: React.ReactNode }) => {
   const [readings, setReadings] = useState<Reading[]>([]);
-  const [currentReading, setCurrentReading] = useState<Reading>({
-    id: crypto.randomUUID(),
-    title: `Reading - ${format(new Date(), 'MMM d, yyyy h:mm a')}`,
-    timestamp: new Date().toISOString(),
-    cards: []
-  });
+  const [currentReading, setCurrentReading] = useState<Reading>(createNewReading());
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Load readings from localStorage on mount
@@ -76,24 +79,35 @@ export const TarotProvider = ({ children }: { children: React.ReactNode }) => {
       y: window.innerHeight / 2 - 125 + (Math.random() * 30 - 15)
     };
     
+    // Check if this is the first card of a reading
+    const isFirstCard = currentReading.cards.length === 0;
+    
+    // Start a new reading if this is the first card
+    const readingToUse = isFirstCard ? createNewReading() : currentReading;
+    
     const updatedReading = {
-      ...currentReading,
-      cards: [...currentReading.cards, { card: newCard, position }]
+      ...readingToUse,
+      cards: [...readingToUse.cards, { card: newCard, position }]
     };
     
     setCurrentReading(updatedReading);
     
-    // Update the readings array if this reading already exists in it
-    const readingIndex = readings.findIndex(r => r.id === currentReading.id);
-    if (readingIndex >= 0) {
-      const updatedReadings = [...readings];
-      updatedReadings[readingIndex] = updatedReading;
-      setReadings(updatedReadings);
+    // If this is the first card, we don't need to update readings since it's a brand new reading
+    if (!isFirstCard) {
+      // Update the readings array if this reading already exists in it
+      const readingIndex = readings.findIndex(r => r.id === currentReading.id);
+      if (readingIndex >= 0) {
+        const updatedReadings = [...readings];
+        updatedReadings[readingIndex] = updatedReading;
+        setReadings(updatedReadings);
+      }
     }
     
     toast({
-      title: "Card Drawn",
-      description: `You've drawn ${newCard.name}`,
+      title: isFirstCard ? "New Reading Started" : "Card Drawn",
+      description: isFirstCard 
+        ? `New reading started with ${newCard.name}`
+        : `You've drawn ${newCard.name}`,
       duration: 3000,
     });
   };
@@ -109,12 +123,7 @@ export const TarotProvider = ({ children }: { children: React.ReactNode }) => {
     }
     
     // Create a new reading
-    setCurrentReading({
-      id: crypto.randomUUID(),
-      title: `Reading - ${format(new Date(), 'MMM d, yyyy h:mm a')}`,
-      timestamp: new Date().toISOString(),
-      cards: []
-    });
+    setCurrentReading(createNewReading());
     
     toast({
       title: "New Reading",
@@ -156,6 +165,14 @@ export const TarotProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Load a saved reading
   const loadReading = (readingId: string) => {
+    // Save the current reading if it has cards before loading a new one
+    if (currentReading.cards.length > 0) {
+      const readingExists = readings.some(r => r.id === currentReading.id);
+      if (!readingExists) {
+        setReadings([...readings, currentReading]);
+      }
+    }
+    
     const reading = readings.find(r => r.id === readingId);
     if (reading) {
       setCurrentReading(reading);

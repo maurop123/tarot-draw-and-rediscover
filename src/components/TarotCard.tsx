@@ -131,16 +131,100 @@ const TarotCard: React.FC<TarotCardProps> = ({
       <div className="flex-1 flex items-center justify-center w-full">
         <svg
           className="w-full h-full text-white"
-          viewBox="0 0 100 200"
+          viewBox="0 0 100 160"
           xmlns="http://www.w3.org/2000/svg"
         >
           {/* Card back pattern */}
-          <rect x="10" y="10" width="80" height="180" rx="5" fill="#6E59A5" />
-          <path d={card.image} fill="#E6C06B" stroke="#33C3F0" strokeWidth="1" />
-          <circle cx="50" cy="100" r="30" fill="none" stroke="#E6C06B" strokeWidth="1" />
-          <polygon points="50,70 65,100 50,130 35,100" fill="none" stroke="#33C3F0" strokeWidth="1" />
+          <rect x="5" y="5" width="90" height="150" rx="5" fill="#6E59A5" />
+          
+          {/* Render the card's SVG elements from the image property */}
+          {card.svgElements.map((element, i) => {
+            if (element.type === 'circle') {
+              return (
+                <circle 
+                  key={i}
+                  cx={element.cx} 
+                  cy={element.cy} 
+                  r={element.r} 
+                  fill={element.fill || 'none'} 
+                  stroke={element.stroke || '#E6C06B'} 
+                  strokeWidth={element.strokeWidth || 1} 
+                />
+              );
+            } else if (element.type === 'rect') {
+              return (
+                <rect 
+                  key={i}
+                  x={element.x} 
+                  y={element.y} 
+                  width={element.width} 
+                  height={element.height} 
+                  rx={element.rx || 0} 
+                  fill={element.fill || 'none'} 
+                  stroke={element.stroke || '#E6C06B'} 
+                  strokeWidth={element.strokeWidth || 1} 
+                />
+              );
+            } else if (element.type === 'polygon') {
+              return (
+                <polygon 
+                  key={i}
+                  points={element.points} 
+                  fill={element.fill || 'none'} 
+                  stroke={element.stroke || '#E6C06B'} 
+                  strokeWidth={element.strokeWidth || 1} 
+                />
+              );
+            } else if (element.type === 'line') {
+              return (
+                <line 
+                  key={i}
+                  x1={element.x1} 
+                  y1={element.y1} 
+                  x2={element.x2} 
+                  y2={element.y2} 
+                  stroke={element.stroke || '#E6C06B'} 
+                  strokeWidth={element.strokeWidth || 1} 
+                />
+              );
+            } else if (element.type === 'path') {
+              return (
+                <path 
+                  key={i}
+                  d={element.d} 
+                  fill={element.fill || 'none'} 
+                  stroke={element.stroke || '#E6C06B'} 
+                  strokeWidth={element.strokeWidth || 1} 
+                />
+              );
+            } else if (element.type === 'star') {
+              // Create a star path based on parameters
+              const { cx, cy, r, points, fill, stroke, strokeWidth } = element;
+              let pathData = '';
+              for (let i = 0; i < points; i++) {
+                const angle = (Math.PI * 2 * i) / points - Math.PI / 2;
+                const x = cx + r * Math.cos(angle);
+                const y = cy + r * Math.sin(angle);
+                pathData += (i === 0 ? 'M' : 'L') + x + ',' + y;
+              }
+              return (
+                <path 
+                  key={i}
+                  d={pathData} 
+                  fill={fill || 'none'} 
+                  stroke={stroke || '#E6C06B'} 
+                  strokeWidth={strokeWidth || 1} 
+                />
+              );
+            }
+            return null;
+          })}
+          
+          {/* Card decoration */}
+          <rect x="8" y="8" width="84" height="144" rx="3" fill="none" stroke="#E6C06B" strokeWidth="0.5" />
         </svg>
       </div>
+      <div className="text-xs text-center text-tarot-gold">{card.suit || "Major Arcana"}</div>
     </div>
   );
 };
