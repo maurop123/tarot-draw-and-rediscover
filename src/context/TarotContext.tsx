@@ -92,8 +92,10 @@ export const TarotProvider = ({ children }: { children: React.ReactNode }) => {
     
     setCurrentReading(updatedReading);
     
-    // If this is the first card, we don't need to update readings since it's a brand new reading
-    if (!isFirstCard) {
+    // If this is the first card, add the new reading to the readings list
+    if (isFirstCard) {
+      setReadings([...readings, updatedReading]);
+    } else {
       // Update the readings array if this reading already exists in it
       const readingIndex = readings.findIndex(r => r.id === currentReading.id);
       if (readingIndex >= 0) {
